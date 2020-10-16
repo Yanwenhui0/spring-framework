@@ -420,6 +420,18 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		return initializeBean(beanName, existingBean, null);
 	}
 
+	/**
+	 * 调用 bean 前置处理器（所有 BeanPostProcessor 的实现），进行 bean 加强
+	 *
+	 * BeanPostProcessor 的实现:
+	 * org.springframework.context.support.ApplicationContextAwareProcessor
+	 * org.springframework.context.annotation.ConfigurationClassPostProcessor.ImportAwareBeanPostProcessor
+	 * org.springframework.context.support.PostProcessorRegistrationDelegate.BeanPostProcessorChecker
+	 * org.springframework.aop.aspectj.annotation.AnnotationAwareAspectJAutoProxyCreator
+	 * org.springframework.context.annotation.CommonAnnotationBeanPostProcessor
+	 * org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor
+	 * org.springframework.context.support.ApplicationListenerDetector
+	 */
 	@Override
 	public Object applyBeanPostProcessorsBeforeInitialization(Object existingBean, String beanName)
 			throws BeansException {
@@ -435,6 +447,9 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		return result;
 	}
 
+	/**
+	 * 调用 bean 后置处理器，进行 bean 加强
+	 */
 	@Override
 	public Object applyBeanPostProcessorsAfterInitialization(Object existingBean, String beanName)
 			throws BeansException {
@@ -546,6 +561,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 	}
 
 	/**
+	 * 创建 bean 并初始化
 	 * Actually create the specified bean. Pre-creation processing has already happened
 	 * at this point, e.g. checking {@code postProcessBeforeInstantiation} callbacks.
 	 * <p>Differentiates between default bean instantiation, use of a
@@ -570,6 +586,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		if (instanceWrapper == null) {
 			instanceWrapper = createBeanInstance(beanName, mbd, args);
 		}
+		// TODO yanwenhui :: 创建对象
 		Object bean = instanceWrapper.getWrappedInstance();
 		Class<?> beanType = instanceWrapper.getWrappedClass();
 		if (beanType != NullBean.class) {
@@ -599,6 +616,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 				logger.trace("Eagerly caching bean '" + beanName +
 						"' to allow for resolving potential circular references");
 			}
+			// TODO yanwenhui :: 将对象放入单例工厂
 			addSingletonFactory(beanName, () -> getEarlyBeanReference(beanName, mbd, bean));
 		}
 
@@ -606,6 +624,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		Object exposedObject = bean;
 		try {
 			populateBean(beanName, mbd, instanceWrapper);
+			// TODO yanwenhui :: 初始化 bean
 			exposedObject = initializeBean(beanName, exposedObject, mbd);
 		}
 		catch (Throwable ex) {
@@ -1748,6 +1767,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 
 
 	/**
+	 * 初始化 bean
 	 * Initialize the given bean instance, applying factory callbacks
 	 * as well as init methods and bean post processors.
 	 * <p>Called from {@link #createBean} for traditionally defined beans,
@@ -1777,6 +1797,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 
 		Object wrappedBean = bean;
 		if (mbd == null || !mbd.isSynthetic()) {
+			// TODO yanwenhui :: 调用 bean 前置处理器
 			wrappedBean = applyBeanPostProcessorsBeforeInitialization(wrappedBean, beanName);
 		}
 
@@ -1789,6 +1810,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 					beanName, "Invocation of init method failed", ex);
 		}
 		if (mbd == null || !mbd.isSynthetic()) {
+			// TODO yanwenhui :: 调用 bean 前置处理器
 			wrappedBean = applyBeanPostProcessorsAfterInitialization(wrappedBean, beanName);
 		}
 

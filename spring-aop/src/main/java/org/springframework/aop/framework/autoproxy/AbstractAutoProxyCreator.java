@@ -271,6 +271,8 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 	}
 
 	/**
+	 * wrapIfNecessary(bean, beanName, cacheKey); ==> 代理
+	 *
 	 * Create a proxy with the configured interceptors if the bean is
 	 * identified as one to proxy by the subclass.
 	 * @see #getAdvicesAndAdvisorsForBean
@@ -309,6 +311,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 	}
 
 	/**
+	 * 代理所给的对象
 	 * Wrap the given bean if necessary, i.e. if it is eligible for being proxied.
 	 * @param bean the raw bean instance
 	 * @param beanName the name of the bean
@@ -327,10 +330,11 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 			return bean;
 		}
 
-		// Create proxy if we have advice.
+		// Create proxy if we have advice.满足条件后执行下面的代码，对对象进行代理包装
 		Object[] specificInterceptors = getAdvicesAndAdvisorsForBean(bean.getClass(), beanName, null);
 		if (specificInterceptors != DO_NOT_PROXY) {
 			this.advisedBeans.put(cacheKey, Boolean.TRUE);
+			// TODO yanwenhui :: 创建代理对象
 			Object proxy = createProxy(
 					bean.getClass(), beanName, specificInterceptors, new SingletonTargetSource(bean));
 			this.proxyTypes.put(cacheKey, proxy.getClass());

@@ -129,12 +129,14 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	}
 
 	/**
+	 * bean 初始化完成，放入单例池，严格意义上将，此刻 才有 bean 的概念，初始化完成前都只是一个对象，对象和 bean 的区别
 	 * Add the given singleton object to the singleton cache of this factory.
 	 * <p>To be called for eager registration of singletons.
 	 * @param beanName the name of the bean
 	 * @param singletonObject the singleton object
 	 */
 	protected void addSingleton(String beanName, Object singletonObject) {
+		// TODO yanwenhui :: bean 初始化完成，放入单例池
 		synchronized (this.singletonObjects) {
 			this.singletonObjects.put(beanName, singletonObject);
 			this.singletonFactories.remove(beanName);

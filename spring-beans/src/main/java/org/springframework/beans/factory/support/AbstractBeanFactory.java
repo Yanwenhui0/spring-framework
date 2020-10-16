@@ -201,6 +201,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 
 	@Override
 	public Object getBean(String name) throws BeansException {
+		// TODO yanwenhui :: spring 获取 bean 的方法，高调用率
 		return doGetBean(name, null, null, false);
 	}
 
@@ -319,7 +320,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 					}
 				}
 
-				// Create bean instance.
+				// Create bean instance.创建对象并初始化，放入单例工厂，创建bean
 				if (mbd.isSingleton()) {
 					sharedInstance = getSingleton(beanName, () -> {
 						try {

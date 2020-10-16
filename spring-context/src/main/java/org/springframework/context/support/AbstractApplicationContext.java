@@ -532,40 +532,107 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	@Override
 	public void refresh() throws BeansException, IllegalStateException {
 		synchronized (this.startupShutdownMonitor) {
+			/**
+			 * 准备工作：
+			 * 设置启动时间、是否激活标识位
+			 * 初始化属性源（property source）配置
+			 */
 			// Prepare this context for refreshing.
 			prepareRefresh();
 
+			/**
+			 * 告诉子类刷新内部bean工厂
+			 * 拿到DefaultListableBeanFactory,供后面方法调用
+			 */
 			// Tell the subclass to refresh the internal bean factory.
 			ConfigurableListableBeanFactory beanFactory = obtainFreshBeanFactory();
 
+			/**
+			 * 准备bean工厂
+			 */
 			// Prepare the bean factory for use in this context.
 			prepareBeanFactory(beanFactory);
 
 			try {
+
+				/**
+				 * 不是 web 应用，此方法是一个空方法
+				 *
+				 * AbstractRefreshableWebApplicationContext子类实现（它是XmlWebApplicationContext的父类）：
+				 *
+				 *    @Override
+				 *    protected void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) {
+				 *
+				 *    	//ServletContextAwareProcessor中拿到应用上下文持有的servletContext引用和servletConfig引用
+				 *     	//1.添加ServletContextAwareProcessor处理器
+				 * 		beanFactory.addBeanPostProcessor(new ServletContextAwareProcessor(this.servletContext, this.servletConfig));
+				 *
+				 *    	//在自动注入时忽略指定的依赖接口
+				 *     	//通常被应用上下文用来注册以其他方式解析的依赖项
+				 * 		beanFactory.ignoreDependencyInterface(ServletContextAware.class);
+				 * 		beanFactory.ignoreDependencyInterface(ServletConfigAware.class);
+				 *
+				 *	    //2.注册web应用的scopes
+				 * 		WebApplicationContextUtils.registerWebApplicationScopes(beanFactory, this.servletContext);
+				 *
+				 *		//3.注册和环境有关的beans
+				 * 		WebApplicationContextUtils.registerEnvironmentBeans(beanFactory, this.servletContext, this.servletConfig);
+				 *    }
+				 */
 				// Allows post-processing of the bean factory in context subclasses.
 				postProcessBeanFactory(beanFactory);
 
+				/**
+				 * 调用BeanFactoryPostProcessor各个实现类的方法
+				 * Spring 内部的 和 自定义的
+				 */
 				// Invoke factory processors registered as beans in the context.
 				invokeBeanFactoryPostProcessors(beanFactory);
 
+				/**
+				 * 注册 BeanPostProcessor 的实现类，Spring 内部的 和 自定义的
+				 * 注意看和 BeanFactoryPostProcessor 的区别
+				 * 此接口两个方法: postProcessBeforeInitialization 和 postProcessAfterInitialization
+				 * 两个方法分别在 Bean 初始化之前和初始化之后得到执行。注意，到这里 Bean 还没初始化
+				 */
 				// Register bean processors that intercept bean creation.
 				registerBeanPostProcessors(beanFactory);
 
+				/**
+				 * 国际化支持，不关心
+				 */
 				// Initialize message source for this context.
 				initMessageSource();
 
+				/**
+				 * 初始化事件监听多路广播器
+				 */
 				// Initialize event multicaster for this context.
 				initApplicationEventMulticaster();
 
+				/**
+				 * 这个方法在当前版本没有实现
+				 * 可能在spring后面的版本会去扩展
+				 */
 				// Initialize other special beans in specific context subclasses.
 				onRefresh();
 
+				/**
+				 * 注册监听器是
+				 */
 				// Check for listener beans and register them.
 				registerListeners();
 
+				// TODO yanwenhui :: 初始化所有单例 bean
+				/**
+				 * 初始化所有singleton bean  重点！！重点！！
+				 */
 				// Instantiate all remaining (non-lazy-init) singletons.
 				finishBeanFactoryInitialization(beanFactory);
 
+				/**
+				 * 广播事件，ApplicationContext初始化完成
+				 */
 				// Last step: publish corresponding event.
 				finishRefresh();
 			}
@@ -656,6 +723,8 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	}
 
 	/**
+	 * 配置工厂的标准环境特征的，如上下文的类加载器和后处理器。
+	 *
 	 * Configure the factory's standard context characteristics,
 	 * such as the context's ClassLoader and post-processors.
 	 * @param beanFactory the BeanFactory to configure

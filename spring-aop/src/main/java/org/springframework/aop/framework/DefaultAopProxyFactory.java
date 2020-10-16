@@ -54,9 +54,23 @@ public class DefaultAopProxyFactory implements AopProxyFactory, Serializable {
 	 */
 	private static final boolean IN_NATIVE_IMAGE = (System.getProperty("org.graalvm.nativeimage.imagecode") != null);
 
-
+	/**
+	 * 什么时候是 JDK 动态代理，什么时候是 CGLIB 动态代理
+	 * if (!IN_NATIVE_IMAGE &&
+	 * 				(config.isOptimize() || config.isProxyTargetClass() || hasNoUserSuppliedProxyInterfaces(config)))
+	 *
+	 * true && ( false || proxyTargetClass：可控制 - 默认 false || 是否为类)
+	 * 类：一定是 CGLIB 动态代理
+	 * 接口：默认为 JDK 动态代理， 可通过开关控制
+	 *
+	 * @param config the AOP configuration in the form of an
+	 * AdvisedSupport object
+	 * @return
+	 * @throws AopConfigException
+	 */
 	@Override
 	public AopProxy createAopProxy(AdvisedSupport config) throws AopConfigException {
+		// TODO yanwenhui :: 判断用 JDK 动态代理 还是 CGLIB 动态代理
 		if (!IN_NATIVE_IMAGE &&
 				(config.isOptimize() || config.isProxyTargetClass() || hasNoUserSuppliedProxyInterfaces(config))) {
 			Class<?> targetClass = config.getTargetClass();

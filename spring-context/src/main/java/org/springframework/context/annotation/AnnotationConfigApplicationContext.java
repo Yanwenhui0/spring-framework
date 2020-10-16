@@ -84,8 +84,21 @@ public class AnnotationConfigApplicationContext extends GenericApplicationContex
 	 * {@link Configuration @Configuration} classes
 	 */
 	public AnnotationConfigApplicationContext(Class<?>... componentClasses) {
+		/**
+		 * 这里由于他有父类，所以会先调用父类的构造方法:
+		 * 看源码得知初始化了DefaultListableBeanFactory
+		 *
+		 * 然后才调用自己的构造方法:
+		 * 1.创建一个读取注解的Bean定义读取器
+		 * 	将bean读取完后，会调用DefaultListableBeanFactory注册这个bean
+		 * 2.创建BeanDefinition扫描器
+		 *  可以用来扫描包或者类，继而转换为bd
+		 */
+
 		this();
 		register(componentClasses);
+
+		// 初始化
 		refresh();
 	}
 
