@@ -39,7 +39,6 @@ public class MyImportBeanDefinitionRegistrar implements ImportBeanDefinitionRegi
 
 			beanDefinition.getConstructorArgumentValues().addGenericArgumentValue(beanDefinition.getBeanClassName());
 			beanDefinition.setBeanClass(MybatisFactoryBean.class);
-
 			registry.registerBeanDefinition(beanDefinitionHolder.getBeanName(), beanDefinition);
 		}
 
