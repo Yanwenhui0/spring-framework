@@ -197,6 +197,7 @@ class CglibAopProxy implements AopProxy, Serializable {
 				types[x] = callbacks[x].getClass();
 			}
 			// fixedInterceptorMap only populated at this point, after getCallbacks call above
+			// TODO
 			enhancer.setCallbackFilter(new ProxyCallbackFilter(
 					this.advised.getConfigurationOnlyCopy(), this.fixedInterceptorMap, this.fixedInterceptorOffset));
 			enhancer.setCallbackTypes(types);
@@ -287,6 +288,7 @@ class CglibAopProxy implements AopProxy, Serializable {
 		boolean isStatic = this.advised.getTargetSource().isStatic();
 
 		// Choose an "aop" interceptor (used for AOP calls).
+		// 方法拦截器入口
 		Callback aopInterceptor = new DynamicAdvisedInterceptor(this.advised);
 
 		// Choose a "straight to target" interceptor. (used for calls that are
@@ -674,6 +676,7 @@ class CglibAopProxy implements AopProxy, Serializable {
 				// Get as late as possible to minimize the time we "own" the target, in case it comes from a pool...
 				target = targetSource.getTarget();
 				Class<?> targetClass = (target != null ? target.getClass() : null);
+				// 跟 JdkDynamicAopProxy 的 invoke 很像，都是获取拦截链
 				List<Object> chain = this.advised.getInterceptorsAndDynamicInterceptionAdvice(method, targetClass);
 				Object retVal;
 				// Check whether we only have one InvokerInterceptor: that is,
@@ -688,6 +691,9 @@ class CglibAopProxy implements AopProxy, Serializable {
 				}
 				else {
 					// We need to create a method invocation...
+
+					// 这边，JdkDynamicAopProxy 封装了一个 ReflectiveMethodInvocation ，最后是用反射调用被代理对象的方法的
+					// 而 CglibAopProxy 用的是 CglibMethodInvocation 是 ReflectiveMethodInvocation 的子类， MethodProxy
 					retVal = new CglibMethodInvocation(proxy, target, method, args, targetClass, chain, methodProxy).proceed();
 				}
 				retVal = processReturnType(proxy, target, method, retVal);
@@ -764,6 +770,10 @@ class CglibAopProxy implements AopProxy, Serializable {
 		/**
 		 * Gives a marginal performance improvement versus using reflection to
 		 * invoke the target when invoking public methods.
+		 *
+		 * 还有个很重要的就是他覆盖了 invokeJoinpoint 方法
+		 * 因为默认的 invokeJoinpoint 最后是用方法的反射调用
+		 * 他覆盖了这个方法，如果方法代理存在就走代理的，否则还反射
 		 */
 		@Override
 		protected Object invokeJoinpoint() throws Throwable {
