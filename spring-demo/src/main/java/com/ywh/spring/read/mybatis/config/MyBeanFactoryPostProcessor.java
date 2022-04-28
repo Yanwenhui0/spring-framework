@@ -30,6 +30,7 @@ public class MyBeanFactoryPostProcessor implements BeanFactoryPostProcessor {
 	 * @param beanFactory the bean factory used by the application context
 	 * @throws BeansException
 	 */
+	@SuppressWarnings({"rawtypes", "unchecked"})
 	@Override
 	public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
 

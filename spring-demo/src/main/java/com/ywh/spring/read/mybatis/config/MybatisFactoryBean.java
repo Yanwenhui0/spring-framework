@@ -17,6 +17,7 @@ public class MybatisFactoryBean<T> implements FactoryBean<T> {
 		this.mapper = mapper;
 	}
 
+	@SuppressWarnings({"rawtypes", "unchecked"})
 	@Override
 	public T getObject() throws Exception {
 		return (T) Proxy.newProxyInstance(MybatisFactoryBean.class.getClassLoader(), new Class[]{mapper}, new MyInvocationHandler());

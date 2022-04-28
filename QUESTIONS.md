@@ -44,3 +44,10 @@
     ...
     ...
 ```
+
+## 3、Kotlin: warnings found and -Weeror specified
+
+### 解决方法：
+
+> 这个问题是由于Kotlin将程序中的警告变更为错误导致的问题，只需要改变一下级别即可
+> project structure -> modules -> 具体报错模块 -> main -> kotlin -> 删除Weeror
